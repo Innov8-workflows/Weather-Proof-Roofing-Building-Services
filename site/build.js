@@ -26,10 +26,15 @@ let html = fs.readFileSync(TEMPLATE, 'utf8');
 const missing = [];
 let bytes = 0;
 
+// Park HTML comments before substituting. Comments document the swap points
+// and quote real tokens; inlining megabytes of base64 into a comment would
+// bloat the output for nothing. They are restored verbatim afterwards.
+const comments = [];
+const MARK = i => '__HTMLCOMMENT_' + i + '__';
+html = html.replace(/<!--[\s\S]*?-->/g, m => MARK(comments.push(m) - 1));
+
 html = html.replace(/__B64:([A-Za-z0-9._-]+)__/g, (m, file) => {
   const p = path.join(ASSETS, file);
-  // Missing file: leave the token in place. Tokens inside HTML comments are
-  // the documented swap points for assets that have not been supplied yet.
   if (!fs.existsSync(p)) { missing.push(file); return m; }
   const buf = fs.readFileSync(p);
   bytes += buf.length;
@@ -38,14 +43,19 @@ html = html.replace(/__B64:([A-Za-z0-9._-]+)__/g, (m, file) => {
 });
 
 if (missing.length) {
-  const live = html.replace(/<!--[\s\S]*?-->/g, '');   // ignore commented-out slots
-  const broken = [...new Set(missing)].filter(f => live.includes(`__B64:${f}__`));
-  if (broken.length) {
-    console.error('MISSING ASSETS (referenced in live markup):\n  ' + broken.join('\n  '));
-    process.exit(1);
-  }
+  console.error('MISSING ASSETS (referenced in live markup):\n  ' + [...new Set(missing)].join('\n  '));
+  process.exit(1);
+}
+
+html = html.replace(/__HTMLCOMMENT_(\d+)__/g, (_m, i) => comments[+i]);
+
+// Report tokens that only appear in comments: documented slots awaiting assets.
+const pending = [...new Set(
+  comments.join('\n').match(/__B64:([A-Za-z0-9._-]+)__/g) || []
+)].map(t => t.slice(6, -2)).filter(f => !fs.existsSync(path.join(ASSETS, f)));
+if (pending.length) {
   console.log('Pending assets (commented swap points, not yet supplied):');
-  console.log('  ' + [...new Set(missing)].join('\n  '));
+  console.log('  ' + pending.join('\n  '));
 }
 
 fs.writeFileSync(OUTPUT, html);

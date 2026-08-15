@@ -569,24 +569,30 @@ ul{margin:0;padding:0;list-style:none}
 <!-- ================= HERO ================= -->
 <section class="hero" id="top">
   <!-- ============================================================
-       HERO MEDIA SWAP POINT
-       Photo slider now. When the hero video arrives, delete the
-       .hero-slides div below and paste in its place:
+       HERO MEDIA
+       hero-loop.mp4 is the three client clips (hero-video-01/02/03)
+       rendered into one seamless loop: 0.8s crossfade between each,
+       and a final 0.8s dissolve back into clip one's opening frame so
+       the loop point has no visible cut. Rebuild it with the ffmpeg
+       command recorded in site/make-hero-video.sh.
 
-       <video class="hero-video" autoplay muted loop playsinline
-              preload="auto" poster="__B64:hero1.jpg__">
-         <source src="__B64:hero-video.mp4__" type="video/mp4">
-       </video>
+       To go back to a photo slider, replace the <video> with:
+         <div class="hero-slides" style="position:absolute;inset:0">
+           <img class="hero-slide is-on" src="__B64:hero2.jpg__" alt="...">
+           <img class="hero-slide" src="__B64:hero3.jpg__" alt="...">
+         </div>
+       The slider JS re-arms itself whenever it finds .hero-slide
+       elements, and .hero-media>* already forces
+       position:absolute; inset:0; object-fit:cover on either.
 
-       Nothing else changes: .hero-media>* already forces
-       position:absolute; inset:0; object-fit:cover.
+       Deliberately NOT gated on prefers-reduced-motion: hiding the
+       hero media leaves a black box, which is worse than the motion.
        ============================================================ -->
   <div class="hero-media" id="heroMedia">
-    <div class="hero-slides" style="position:absolute;inset:0">
-      <img class="hero-slide is-on" src="__B64:hero2.jpg__" alt="Completed slate re-roof with new ridge" fetchpriority="high">
-      <img class="hero-slide" src="__B64:hero3.jpg__" alt="Rebuilt and re-flaunched chimney stack">
-      <img class="hero-slide" src="__B64:hero1.jpg__" alt="Newly laid slate roof covering">
-    </div>
+    <video class="hero-video" autoplay muted loop playsinline preload="auto"
+           aria-hidden="true" poster="__B64:hero-poster.jpg__">
+      <source src="__B64:hero-loop.mp4__" type="video/mp4">
+    </video>
   </div>
   <div class="hero__scrim"></div>
 
