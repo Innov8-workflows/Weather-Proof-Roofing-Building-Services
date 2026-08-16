@@ -45,6 +45,19 @@ Reverting to the photo slider is a documented block swap in the hero markup, and
 `hero1/2/3.jpg` are kept in `site/assets` for it. The slider JavaScript re-arms
 itself whenever it finds `.hero-slide` elements.
 
+## Logo transparency
+
+The client logo is supplied as artwork on a solid black plate with no alpha, and
+`logo-light.png` is a different colourway rather than the same artwork on white,
+so a difference matte cannot recover the alpha. `site/make-logo-alpha.sh` derives
+it from the dark version instead, treating the black plate as a premultiplied
+composite: alpha is the brightest channel, then the colour is unpremultiplied.
+
+This replaced a CSS `mix-blend-mode: screen` approach. That looked correct on
+desktop but failed inside in-app webviews, notably Facebook Messenger, where the
+hero video's compositing layer stops the blend resolving and the logo falls back
+to a hard black rectangle. Do not reintroduce the blend.
+
 ## Pending
 
 - Three before and after transformation videos (`transform-1.mp4` and friends)

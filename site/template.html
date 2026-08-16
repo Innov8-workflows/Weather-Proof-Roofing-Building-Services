@@ -152,16 +152,15 @@ ul{margin:0;padding:0;list-style:none}
 .hero-slide{opacity:0;transition:opacity 1.2s ease;animation:kb 15s ease-in-out infinite alternate}
 .hero-slide.is-on{opacity:1}
 @keyframes kb{from{transform:scale(1.02)}to{transform:scale(1.11)}}
-/* NB: neither .hero__scrim nor .hero__in may set z-index. A z-index here
-   would open a stacking context and the logo's mix-blend-mode:screen would
-   blend against nothing, leaving a hard black plate. Paint order comes from
-   DOM order instead: media (z-index:0) -> scrim -> content. */
+/* Paint order comes from DOM order: media (z-index:0) -> scrim -> content.
+   The scrim can be lighter than it once was: the logo now carries its own
+   alpha, so the dark pool only has to keep the silver wordmark legible
+   against bright sky rather than hold up a screen blend. */
 .hero__scrim{
   position:absolute;inset:0;
   background:
-    /* soft pool of dark behind the logo so the screen-blended artwork reads */
-    radial-gradient(46% 34% at 50% 35%,rgba(0,0,0,.9) 0%,rgba(0,0,0,.78) 48%,rgba(0,0,0,.4) 76%,transparent 100%),
-    linear-gradient(180deg,rgba(0,0,0,.74) 0%,rgba(0,0,0,.34) 24%,rgba(0,0,0,.5) 60%,rgba(0,0,0,.9) 92%,#000 100%);
+    radial-gradient(48% 36% at 50% 35%,rgba(0,0,0,.74) 0%,rgba(0,0,0,.56) 50%,rgba(0,0,0,.26) 78%,transparent 100%),
+    linear-gradient(180deg,rgba(0,0,0,.72) 0%,rgba(0,0,0,.3) 24%,rgba(0,0,0,.46) 60%,rgba(0,0,0,.9) 92%,#000 100%);
 }
 .hero__in{
   position:relative;text-align:center;color:#fff;
@@ -169,8 +168,13 @@ ul{margin:0;padding:0;list-style:none}
   min-height:clamp(500px,78svh,760px);
   display:flex;flex-direction:column;align-items:center;justify-content:center;
 }
+/* logo-hero.webp carries a real alpha channel (see site/make-logo-alpha.sh).
+   This used to be the black-plate JPEG with mix-blend-mode:screen, which looked
+   identical on desktop but rendered as a hard black rectangle inside in-app
+   webviews such as Facebook Messenger, where the video's compositing layer
+   prevents the blend resolving. Do not reintroduce the blend. */
 .hero__logo{
-  width:min(560px,86%);height:auto;mix-blend-mode:screen;
+  width:min(560px,86%);height:auto;
   margin-bottom:clamp(14px,2.4vw,20px);
 }
 .hero__tag{
@@ -536,7 +540,7 @@ ul{margin:0;padding:0;list-style:none}
 <header class="nav">
   <div class="wrap nav__in">
     <a class="nav__logo" href="#top" aria-label="Weather Proof Roofing and Building Services, home">
-      <img src="__B64:logo-nav.jpg__" alt="Weather Proof Roofing and Building Services">
+      <img src="__B64:logo-mark.webp__" alt="Weather Proof Roofing and Building Services">
     </a>
     <nav class="nav__links" aria-label="Main">
       <a href="#services">Services</a>
@@ -597,7 +601,7 @@ ul{margin:0;padding:0;list-style:none}
   <div class="hero__scrim"></div>
 
   <div class="wrap hero__in">
-    <img class="hero__logo" src="__B64:logo-dark.jpg__" alt="Weather Proof Roofing and Building Services">
+    <img class="hero__logo" src="__B64:logo-hero.webp__" alt="Weather Proof Roofing and Building Services">
     <h1 class="hero__tag">Roofs built to take <em>whatever the weather throws at them</em></h1>
     <p class="hero__sub">Roofing and building work across Cheshire, North Wales, Merseyside and Greater Manchester. Speak to us directly and get a straight answer on your roof.</p>
     <div class="hero__cta">
@@ -1037,7 +1041,7 @@ ul{margin:0;padding:0;list-style:none}
   <div class="wrap">
     <div class="ft__grid">
       <div>
-        <div class="ft__logo"><img src="__B64:logo-nav.jpg__" alt="Weather Proof Roofing and Building Services"></div>
+        <div class="ft__logo"><img src="__B64:logo-mark.webp__" alt="Weather Proof Roofing and Building Services"></div>
         <p>Roofing and building services across Cheshire, North Wales, Merseyside and Greater Manchester.</p>
         <div class="ft__soc">
           <a href="#" aria-label="Facebook" title="[PLACEHOLDER] Facebook URL needed">
