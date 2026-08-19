@@ -20,25 +20,42 @@ const biz = {
   phoneRaw: '07718155997',
   phoneIntl: '+447718155997',
   whatsapp: '447718155997',
-  email: null,          // pending
+  email: null,          // pending: client still creating the address
   facebook: null,       // pending
   instagram: null,      // pending
   founded: null,        // pending
   openingHours: null,   // pending
-  baseArea: 'Cheshire, North Wales, Merseyside and Greater Manchester'
+  baseArea: 'Cheshire, North Wales, Merseyside and Greater Manchester',
+
+  /* Confirmed by the client 2026-08-16. Everything in this block is a
+     business claim and appears publicly, so it may only be changed on the
+     client's say-so. */
+  owner: 'Isaac Mcdonagh',
+  teamSize: 17,
+  insured: true,
+  publicLiability: 200000,
+  publicLiabilityText: '£200,000',
+  guaranteed: true,        // work guaranteed by the company
+  guaranteeLength: null    // pending: how long the guarantee runs for
 };
 
 /* Everything here renders with a visible [PLACEHOLDER] chip so it cannot be
    mistaken for confirmed fact, and is listed in the build report. */
 const pending = {
-  email: 'email address',
+  phone: 'CLIENT PHONE NUMBER. The site currently shows 07718 155997, which is ' +
+         "Jay's own number standing in until the client's line is live. It is NOT " +
+         'flagged on the page, so it looks like a real business number to visitors. ' +
+         'Swap it before any advertising spend or Google Business Profile listing.',
+  email: 'email address (client still creating it)',
   facebook: 'Facebook page URL',
   instagram: 'Instagram profile URL',
-  owner: 'owner name and a short bio',
-  insurance: 'public liability cover, amount and insurer',
-  guarantee: 'workmanship guarantee and its length',
+  ownerBio: 'a short bio for Isaac Mcdonagh (name and team size now confirmed)',
+  nameSpelling: 'confirm whether the owner spells it Mcdonagh or McDonagh',
+  publicLiability: 'CONFIRM £200,000 is right. Most roofing firms carry £1m to £5m, ' +
+                   'and £200k reads low next to competitors. Possible typo for £2,000,000.',
+  guaranteeLength: 'how long the workmanship guarantee runs for',
   accreditations: 'trade body memberships, if any',
-  reviews: 'real customer reviews',
+  reviews: 'real customer reviews, plus the Google review link',
   prices: 'typical price ranges per service',
   hours: 'working hours',
   founded: 'year the business started',
@@ -329,6 +346,8 @@ const gallery = [
 const generalFaqs = [
   ['Which areas do you cover?', 'Weather Proof Roofing and Building Services covers Chester, Wrexham, Queensferry, Flint, Warrington, Ellesmere Port, the Wirral, Manchester, Stockport, St Helens and the surrounding areas, across Cheshire, North Wales, Merseyside and Greater Manchester. If you are not sure whether you are in range, call 07718 155997 and ask.'],
   ['How do I get a quote?', 'Call or WhatsApp 07718 155997, or use the quote form on the contact page, which opens WhatsApp with your details already written out. Sending a photo of the problem is the fastest way to get a useful answer, because a lot can be told from a clear picture of a roof.'],
+  ['Are you insured?', 'Yes. Weather Proof Roofing and Building Services carries a full insurance pack, including £200,000 of public liability cover. Every job is also guaranteed by the company, so if something is not right after we have left, we come back and put it right.'],
+  ['How big is your team?', 'There are 17 of us. That is enough to strip and re-cover a roof properly and keep the job moving, rather than it being fitted in around other work over several weeks, while still being a company you can reach on one number.'],
   ['Do you charge for a quote?', 'Quotes are free and there is no obligation to go ahead. You get told what needs doing and what it will cost before any work starts.'],
   ['Can you tell what is wrong from a photo?', 'Often yes, at least well enough to say whether it is a small repair or something bigger. A photo of the affected area plus one of the whole elevation is usually enough for an initial view, though anything serious still needs looking at properly.'],
   ['Do you do emergency call-outs?', 'Active leaks are treated as urgent, because water sitting in a ceiling does far more damage than the fault that let it in. Call 07718 155997 and you will be told honestly how soon someone can get to you.'],

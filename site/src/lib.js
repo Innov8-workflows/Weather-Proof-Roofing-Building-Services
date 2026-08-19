@@ -229,7 +229,8 @@ function footer(d) {
         <div class="ft__logo"><img src="${asset(d, 'logo-mark.webp')}" alt="${esc(biz.name)}" width="440" height="257" loading="lazy"></div>
         <p>Roofing and building services across ${esc(biz.baseArea)}.</p>
         <div class="ft__soc">${soc.join('')}</div>
-        ${biz.facebook && biz.instagram ? '' : `<div class="ft__accred">${ph()} social profile links, accreditation and insurance details to be supplied.</div>`}
+        <div class="ft__ins">${ic('shield')}<span>Fully insured. ${biz.publicLiabilityText} public liability cover, all work guaranteed.</span></div>
+        ${biz.facebook && biz.instagram ? '' : `<div class="ft__accred">${ph()} social profile links and any trade accreditations to be supplied.</div>`}
       </div>
       <div class="ft__cols">
         <div>
@@ -290,7 +291,8 @@ function businessNode() {
     image: SITE_URL + '/assets/og-default.jpg',
     logo: { '@type': 'ImageObject', url: SITE_URL + '/assets/logo-hero.webp' },
     description: 'Roofing and building services covering ' + biz.baseArea +
-      '. New roofs and re-roofing, roof repairs, chimney repairs, ridge and verge work, guttering, fascias and soffits, and general building work.',
+      '. New roofs and re-roofing, roof repairs, chimney repairs, ridge and verge work, guttering, fascias and soffits, and general building work. A team of ' +
+      biz.teamSize + ', fully insured with ' + biz.publicLiabilityText + ' public liability cover, and all work guaranteed.',
     areaServed: locations.map(l => ({ '@type': 'City', name: l.name })),
     knowsAbout: services.map(s => s.title),
     hasOfferCatalog: {
@@ -301,6 +303,9 @@ function businessNode() {
         itemOffered: { '@type': 'Service', name: s.title, url: abs(s.slug) }
       }))
     },
+    numberOfEmployees: { '@type': 'QuantitativeValue', value: biz.teamSize },
+    founder: { '@type': 'Person', name: biz.owner },
+    employee: { '@type': 'Person', name: biz.owner, jobTitle: 'Owner' },
     contactPoint: {
       '@type': 'ContactPoint',
       telephone: biz.phoneIntl,

@@ -124,7 +124,7 @@ function home() {
     <div class="trust__i">${ic('pin')}<div><b>10 areas covered</b><small>Chester to Stockport, and all surrounding areas</small></div></div>
     <div class="trust__i">${ic('phone')}<div><b>Call or WhatsApp</b><small>Straight through on ${biz.phone}</small></div></div>
     <div class="trust__i">${ic('camera')}<div><b>Real photos of real jobs</b><small>Every picture here is our own work</small></div></div>
-    <div class="trust__i">${ic('shield')}<div><b>Accreditations</b><small>${ph()} confirm insurance and any trade memberships</small></div></div>
+    <div class="trust__i">${ic('shield')}<div><b>Fully insured</b><small>${biz.publicLiabilityText} public liability, work guaranteed</small></div></div>
   </div>
 </section>
 
@@ -206,10 +206,10 @@ function home() {
         <p>Every image on this site is a job we have carried out. Jobs are photographed as they go so you can see exactly what you are paying for.</p></div></article>
       <article class="why__c">${ic('pin')}<div><h3>Properly local across the North West</h3>
         <p>${locations.map(l => l.name).join(', ')} and everywhere around them.</p></div></article>
-      <article class="why__c">${ic('phone')}<div><h3>One number, straight through</h3>
-        <p>Call or WhatsApp ${biz.phone} and speak to the person doing the work. Send us a photo of the problem and we will tell you what we think.</p></div></article>
-      <article class="why__c">${ic('shield')}<div><h3>${ph()} Guarantees and cover</h3>
-        <p>[PLACEHOLDER] Confirm your public liability cover, any workmanship guarantee and the length of it, plus any trade body membership. Nothing is claimed here until you confirm it.</p></div></article>
+      <article class="why__c">${ic('users')}<div><h3>A team of ${biz.teamSize}, one number</h3>
+        <p>Big enough to get a full re-roof done properly, small enough that you deal with us direct on ${biz.phone}. Send a photo of the problem and we will tell you what we think.</p></div></article>
+      <article class="why__c">${ic('shield')}<div><h3>Fully insured and guaranteed</h3>
+        <p>${biz.publicLiabilityText} of public liability cover, and every job is guaranteed by the company. If something is not right after we have left, we come back and put it right.</p></div></article>
     </div>
   </div>
 </section>
@@ -231,10 +231,10 @@ function home() {
     <div class="ab__body">
       <div class="eyebrow">About us</div>
       <h2>Meet the team behind the roof</h2>
-      <p>[PLACEHOLDER] A short introduction to who runs ${esc(biz.name)}, how long you have been on the tools, how you got started and what you care about on a job.</p>
-      <p>[PLACEHOLDER] A second paragraph covering the way you work: who turns up, how you quote, how you keep the site tidy and what happens if something is not right after you have left.</p>
-      <div class="ab__sign"><div class="rv__av">WP</div><div><b>[Owner name]</b>
-        <small>${ph()} owner name and job title to confirm</small></div></div>
+      <p>${esc(biz.name)} is run by ${esc(biz.owner)}, with a team of ${biz.teamSize} covering roofing and building work right across the North West. That is enough people to take on a full re-roof and keep it moving, while still being a company you can get hold of directly.</p>
+      <p>Every job is fully insured, with ${biz.publicLiabilityText} of public liability cover, and guaranteed by the company. [PLACEHOLDER] A short paragraph from Isaac on how the business started and what matters to him on a job would sit well here.</p>
+      <div class="ab__sign"><div class="rv__av">IM</div><div><b>${esc(biz.owner)}</b>
+        <small>Owner, ${esc(biz.name)}</small></div></div>
       <div style="margin-top:18px"><a class="btn btn--dark" href="${href(d, 'about')}">More about us ${ic('arrow')}</a></div>
     </div>
   </div>
