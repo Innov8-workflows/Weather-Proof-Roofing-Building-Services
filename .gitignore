@@ -1,3 +1,6 @@
-# Raw client footage: large, and hero-loop.mp4 is the rendered output that
-# the build actually consumes. Originals are held outside the repo.
+# Raw client footage: 46 MB, and hero-loop.mp4 is the rendered output the
+# build actually consumes. Originals are held outside the repo.
 site/assets/hero-video-*.mp4
+
+# Generator output staging directory
+_site/
