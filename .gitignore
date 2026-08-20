@@ -4,3 +4,6 @@ site/assets/hero-video-*.mp4
 
 # Generator output staging directory
 _site/
+
+# npm
+node_modules/

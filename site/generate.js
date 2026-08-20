@@ -14,6 +14,7 @@ const path = require('path');
 const D = require('./src/data.js');
 const Pages = require('./src/pages.js');
 const Info = require('./src/pages-info.js');
+const A = require('./src/assets.js');
 
 const SRC = path.join(__dirname, 'src');
 const ASSETS = path.join(__dirname, 'assets');
@@ -55,13 +56,13 @@ for (const p of pages) {
 fs.writeFileSync(path.join(OUT, '404.html'), notFound.html);
 
 /* ---------- assets ---------- */
-/* one stylesheet: base styles plus the inner page styles */
-fs.writeFileSync(
-  path.join(OUT_ASSETS, 'site.css'),
-  fs.readFileSync(path.join(SRC, 'site.css'), 'utf8') + '\n' +
-  fs.readFileSync(path.join(SRC, 'pages.css'), 'utf8')
-);
-fs.copyFileSync(path.join(SRC, 'site.js'), path.join(OUT_ASSETS, 'site.js'));
+/* Stylesheet and script are written under content-hashed names, so they can be
+   cached immutably: a change produces a new filename and there is no stale
+   window. Names come from src/assets.js, which lib.js reads too, so the
+   reference and the file cannot drift apart.
+   Media keeps stable names and Cloudflare's default ETag revalidation. */
+fs.writeFileSync(path.join(OUT_ASSETS, A.cssName), A.cssSource);
+fs.writeFileSync(path.join(OUT_ASSETS, A.jsName), A.jsSource);
 
 const MEDIA = [
   'logo-hero.webp', 'logo-mark.webp', 'hero-loop.mp4', 'hero-poster.jpg',
@@ -170,8 +171,81 @@ ${D.locations.map(l => `- [Roofers in ${l.name}](${D.SITE_URL}/roofers-in-${l.sl
   or price has been published on this site. Do not infer or state any.
 `);
 
-/* ---------- .nojekyll so GitHub Pages serves the files as-is ---------- */
-fs.writeFileSync(path.join(OUT, '.nojekyll'), '');
+/* ---------- _headers ----------
+   Cloudflare Workers static assets parses this from the root of the assets
+   directory and applies it to matching responses. It is never served as a file.
+   GitHub Pages could not set a single HTTP header, so all of this is new
+   capability rather than a port. It must be emitted here, because generate.js
+   wipes OUT on every run and a hand-placed file would not survive.
+
+   CSP, checked against the actual generated markup:
+     - style-src NEEDS 'unsafe-inline': the pages carry inline style="..."
+       attributes (22+ on the homepage alone) and dropping it breaks the layout.
+       Hashes are not viable at this count and style-src-attr is unsupported in
+       Safari.
+     - script-src needs no 'unsafe-inline': site.js is external and deferred,
+       there are zero inline <script> blocks and zero on* handlers.
+       <script type="application/ld+json"> is a data block, not executed.
+     - Google Fonts needs googleapis.com for the stylesheet and gstatic.com for
+       the font files, which are a second hop the HTML never names.
+     - media-src 'self' is required or the hero video goes black.
+     - connect-src 'self' will block a lead-log beacon to script.google.com if
+       one is ever added. Widen it then, not now.
+
+   Permissions-Policy deliberately sets autoplay=(self), NOT autoplay=(). The
+   common copy-paste snippet uses the latter and would kill the hero video.
+
+   HSTS is deliberately absent: it is set at zone level in Cloudflare
+   (SSL/TLS -> Edge Certificates) so it covers redirect responses too, and it
+   should be ramped from a short max-age rather than shipped at a year. */
+const CSP = [
+  "default-src 'self'",
+  "base-uri 'none'",
+  "object-src 'none'",
+  "frame-src 'none'",
+  "frame-ancestors 'none'",
+  "script-src 'self'",
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+  "font-src 'self' https://fonts.gstatic.com",
+  "img-src 'self'",
+  "media-src 'self'",
+  "connect-src 'self'",
+  "form-action 'self'",
+  "manifest-src 'none'",
+  "worker-src 'none'",
+  'upgrade-insecure-requests'
+].join('; ');
+
+const PERMISSIONS = [
+  'accelerometer=()', 'autoplay=(self)', 'camera=()', 'display-capture=()',
+  'encrypted-media=()', 'fullscreen=(self)', 'geolocation=()', 'gyroscope=()',
+  'magnetometer=()', 'microphone=()', 'midi=()', 'payment=()', 'usb=()',
+  'xr-spatial-tracking=()'
+].join(', ');
+
+fs.writeFileSync(path.join(OUT, '_headers'), `/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  Referrer-Policy: strict-origin-when-cross-origin
+  Cross-Origin-Opener-Policy: same-origin
+  Permissions-Policy: ${PERMISSIONS}
+  Content-Security-Policy: ${CSP}
+
+# Content-hashed, so a change means a new filename and this can never go stale.
+# Media is NOT given a long TTL: the filenames are not versioned, so a replaced
+# photo would be stuck in caches with no way to bust it. Cloudflare's default
+# (max-age=0, must-revalidate, with an ETag) gives repeat visitors a cheap 304.
+/assets/${A.cssName}
+  Cache-Control: public, max-age=31536000, immutable
+
+/assets/${A.jsName}
+  Cache-Control: public, max-age=31536000, immutable
+
+# Keeps the preview deployment out of the index while workers_dev is true.
+# Remove this block when the custom domain goes live and workers_dev is false.
+https://:worker.:account.workers.dev/*
+  X-Robots-Tag: noindex, nofollow
+`);
 
 /* ---------- report ---------- */
 const totalBytes = (function walk(dir) {
@@ -188,6 +262,7 @@ console.log('Built ' + OUT);
 console.log('  pages            : ' + (written + 1) + ' (including 404)');
 console.log('  average page HTML: ' + kb(htmlBytes / pages.length));
 console.log('  total output     : ' + (totalBytes / 1048576).toFixed(2) + ' MB');
+console.log('  hashed assets    : ' + A.cssName + ', ' + A.jsName);
 if (missingAssets.length) {
   console.log('\n  MISSING ASSETS (page references will 404):');
   missingAssets.forEach(f => console.log('    - ' + f));

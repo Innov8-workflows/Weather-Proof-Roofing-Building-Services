@@ -1,0 +1,35 @@
+{
+  // Assets-only Worker: there is deliberately no "main".
+  //
+  // Adding a `main` later would stop _headers applying to any Worker-generated
+  // response, silently dropping the security headers on those paths.
+  // See https://developers.cloudflare.com/workers/static-assets/headers/
+  "name": "weather-proof-roofing",
+  "compatibility_date": "2026-08-20",
+
+  "assets": {
+    // Build output. `node site/generate.js` wipes and rewrites this directory,
+    // so nothing may be hand-placed inside it.
+    "directory": "./_site",
+
+    // Serves <slug>/index.html at /<slug>/, and 307s /<slug> -> /<slug>/.
+    // (307, not 301 — GitHub Pages used a 301, so this is a deliberate,
+    // harmless behaviour change. Nothing internal links to the non-slash form.)
+    //
+    // DO NOT change to "drop-trailing-slash": all 26 canonicals, the sitemap
+    // and every internal link emit the trailing-slash form, so it would create
+    // a site-wide canonical mismatch.
+    "html_handling": "auto-trailing-slash",
+
+    // NOT the default, which is "none". Serves _site/404.html with a real 404
+    // status for a miss at any depth. The 404 page uses root-absolute asset
+    // paths for exactly this reason, and carries noindex because the file is
+    // also reachable at /404 with a 200.
+    "not_found_handling": "404-page"
+  },
+
+  // Keep true only until the custom domain is attached and verified, then set
+  // false and redeploy. Leaving it true publishes a second, complete copy of
+  // the site on a *.workers.dev hostname, which is a duplicate content problem.
+  "workers_dev": true
+}

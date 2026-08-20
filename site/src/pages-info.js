@@ -361,9 +361,16 @@ function terms() {
 
 /* ---------------- 404 ---------------- */
 function notFound() {
-  /* served from the site root by GitHub Pages, so it must use depth 0 paths */
+  /* Depth -1 = root-absolute paths. The host serves this page for a miss at
+     ANY depth, so /roofers-in-chester/foo/ would resolve depth-relative refs
+     against that directory and 404 every asset and link. */
   const p = {
-    depth: 0, slug: '404', nav: '',
+    depth: -1, slug: '404', nav: '',
+    /* Without these it is an indexable soft-404: the host serves this file for
+       any miss, and /404 itself answers 200, self-canonicalising to a URL that
+       does not exist. */
+    noindex: true,
+    canonical: D.SITE_URL + '/',
     title: 'Page Not Found | Weather Proof Roofing',
     description: 'That page could not be found. Browse our roofing services and areas covered, or call 07718 155997 for a free quote.'
   };
@@ -374,13 +381,13 @@ function notFound() {
   <h1 style="font-size:clamp(1.8rem,6vw,3rem);margin-bottom:12px">That page has slipped off the roof</h1>
   <p style="color:var(--muted);max-width:52ch;margin:0 auto 26px">The page you were after does not exist any more, or the address has a typo in it. Here is where to go instead.</p>
   <div class="band__btns" style="margin-bottom:34px">
-    <a class="btn btn--gold" href="${href(0, '')}">Back to the homepage ${ic('arrow')}</a>
+    <a class="btn btn--gold" href="${href(-1, '')}">Back to the homepage ${ic('arrow')}</a>
     <a class="btn btn--dark" href="${tel}" data-track="call">${ic('phone')} Call ${biz.phone}</a>
   </div>
   <div class="chips" style="justify-content:center">
-    ${services.map(s => `<a class="chip" href="${href(0, s.slug)}">${ic(s.icon)}${esc(s.nav)}</a>`).join('\n    ')}
-    <a class="chip" href="${href(0, 'areas-we-cover')}">${ic('pin')}Areas we cover</a>
-    <a class="chip" href="${href(0, 'contact')}">${ic('mail')}Contact</a>
+    ${services.map(s => `<a class="chip" href="${href(-1, s.slug)}">${ic(s.icon)}${esc(s.nav)}</a>`).join('\n    ')}
+    <a class="chip" href="${href(-1, 'areas-we-cover')}">${ic('pin')}Areas we cover</a>
+    <a class="chip" href="${href(-1, 'contact')}">${ic('mail')}Contact</a>
   </div>
 </div></section>`;
   return { ...p, html: page(p, body) };

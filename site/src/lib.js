@@ -3,15 +3,18 @@
    Icons are exact Lucide paths, never hand-drawn.
    ============================================================ */
 const { SITE_URL, biz, pending, services, locations } = require('./data.js');
+const A = require('./assets.js');
 
 /* ---------- small helpers ---------- */
 const esc = s => String(s)
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
   .replace(/"/g, '&quot;');
 
-/* depth 0 = site root (index.html), depth 1 = /<slug>/index.html */
-const root = d => (d === 0 ? '' : '../');
-const href = (d, slug) => root(d) + (slug ? slug + '/' : '') || './';
+/* depth 0 = site root (index.html), depth 1 = /<slug>/index.html,
+   depth -1 = root-absolute, for pages served from an arbitrary path */
+const root = d => (d === -1 ? '/' : d === 0 ? '' : '../');
+const href = (d, slug) => (d === -1 ? '/' + (slug ? slug + '/' : '')
+                                    : root(d) + (slug ? slug + '/' : '') || './');
 const asset = (d, f) => root(d) + 'assets/' + f;
 const abs = slug => SITE_URL + '/' + (slug ? slug + '/' : '');
 
@@ -54,7 +57,13 @@ const tel = `tel:${biz.phoneRaw}`;
 /* ---------- head ---------- */
 function head(p) {
   const d = p.depth;
-  const canonical = abs(p.slug);
+  /* The 404 page is served at whatever path was missed, and the file itself
+     answers /404 with a 200, so it must not be indexable and must not
+     canonicalise to a URL that does not exist. Both are overridable per page. */
+  const canonical = p.canonical || abs(p.slug);
+  const robots = p.noindex
+    ? 'noindex, nofollow'
+    : 'index, follow, max-image-preview:large, max-snippet:-1';
   const ogImg = SITE_URL + '/assets/' + (p.ogImage || 'og-default.jpg');
   return `<!DOCTYPE html>
 <html lang="en-GB">
@@ -65,7 +74,7 @@ function head(p) {
 <meta name="description" content="${esc(p.description)}">
 <link rel="canonical" href="${canonical}">
 <meta name="theme-color" content="#000000">
-<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+<meta name="robots" content="${robots}">
 <meta property="og:type" content="${p.slug ? 'article' : 'website'}">
 <meta property="og:site_name" content="${esc(biz.name)}">
 <meta property="og:locale" content="en_GB">
@@ -84,7 +93,7 @@ function head(p) {
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="${asset(d, 'site.css')}">
+<link rel="stylesheet" href="${asset(d, A.cssName)}">
 <script type="application/ld+json">${JSON.stringify(p.schema)}</script>
 </head>
 <body>`;
@@ -265,7 +274,7 @@ function footer(d) {
   <span class="wa__pulse" aria-hidden="true"></span>
   <svg viewBox="0 0 24 24" aria-hidden="true">${WA_GLYPH}</svg>
 </a>
-<script src="${asset(d, 'site.js')}" defer></script>
+<script src="${asset(d, A.jsName)}" defer></script>
 </body>
 </html>`;
 }

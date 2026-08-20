@@ -4,6 +4,9 @@
 const fs = require('fs');
 const path = require('path');
 const OUT = path.join(__dirname, '..', '_site');
+/* derive the host, never hardcode it: SITE_URL changes when the domain does,
+   and a stale literal here fails the build for every sitemap entry */
+const { SITE_URL } = require('./src/data.js');
 
 const walk = d => fs.readdirSync(d, { withFileTypes: true }).flatMap(e => {
   const f = path.join(d, e.name);
@@ -41,8 +44,11 @@ for (const f of htmls) {
     if (desc.length > 165) warn.push(`${id}: description ${desc.length} chars (over 165)`);
     if (desc.length < 70) warn.push(`${id}: description only ${desc.length} chars`);
   }
-  if (canon) {
-    if (canons.has(canon) && id !== '404.html') problems.push(`${id}: canonical collides with ${canons.get(canon)}`);
+  /* 404.html deliberately canonicalises to the homepage, so it is exempt from
+     the collision check in both directions: it must neither be reported nor
+     registered, or whichever page is walked second gets flagged. */
+  if (canon && id !== '404.html') {
+    if (canons.has(canon)) problems.push(`${id}: canonical collides with ${canons.get(canon)}`);
     canons.set(canon, id);
   }
 
@@ -77,7 +83,7 @@ for (const f of htmls) {
 
   for (const r of refs) {
     if (/^(https?:|mailto:|tel:|data:|#)/.test(r)) continue;
-    let target = path.resolve(dir, r);
+    let target = r.startsWith('/') ? path.join(OUT, r) : path.resolve(dir, r);
     if (r.endsWith('/') || !path.extname(r)) target = path.join(target, 'index.html');
     if (!fs.existsSync(target)) problems.push(`${id}: dead link -> ${r}`);
   }
@@ -92,7 +98,7 @@ const sm = fs.readFileSync(path.join(OUT, 'sitemap.xml'), 'utf8');
 const locs = [...sm.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m => m[1]);
 const pageUrls = htmls.filter(f => !f.endsWith('404.html'))
   .map(f => rel(f).replace(/index\.html$/, ''))
-  .map(u => 'https://innov8-workflows.github.io/Weather-Proof-Roofing-Building-Services/' + u);
+  .map(u => SITE_URL + '/' + u);
 pageUrls.forEach(u => { if (!locs.includes(u)) problems.push(`sitemap: missing ${u}`); });
 locs.forEach(u => { if (!pageUrls.includes(u)) problems.push(`sitemap: lists non-existent ${u}`); });
 if (!/sitemaps\.org/.test(sm)) problems.push('sitemap: wrong namespace');
