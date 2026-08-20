@@ -11,7 +11,7 @@
 
 /* Change SITE_URL the moment a custom domain goes live, then rebuild.
    Canonicals, OG tags, sitemap and schema all derive from it. */
-const SITE_URL = 'https://innov8-workflows.github.io/Weather-Proof-Roofing-Building-Services';
+const SITE_URL = 'https://weatherproofroofingbuildingservices.co.uk';
 
 const biz = {
   name: 'Weather Proof Roofing and Building Services',
