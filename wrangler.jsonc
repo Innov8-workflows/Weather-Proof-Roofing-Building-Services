@@ -28,8 +28,19 @@
     "not_found_handling": "404-page"
   },
 
-  // Keep true only until the custom domain is attached and verified, then set
-  // false and redeploy. Leaving it true publishes a second, complete copy of
-  // the site on a *.workers.dev hostname, which is a duplicate content problem.
-  "workers_dev": true
+  // Custom domains. Cloudflare creates and manages the DNS records for these,
+  // which is why none were added by hand. www is attached so it resolves, and a
+  // Redirect Rule 301s it to the apex so there is only one canonical hostname.
+  "routes": [
+    { "pattern": "weatherproofroofingbuildingservices.co.uk", "custom_domain": true },
+    { "pattern": "www.weatherproofroofingbuildingservices.co.uk", "custom_domain": true }
+  ],
+
+  // Custom domain is live and verified, so the *.workers.dev copy is switched
+  // off. Leaving it on would publish a second complete copy of the site on a
+  // different hostname, competing with the real domain in search.
+  "workers_dev": false,
+
+  // Preview URLs would republish the site on yet another hostname per version.
+  "preview_urls": false
 }
